@@ -1,0 +1,22 @@
+plugins {
+	id 'org.springframework.boot' version '2.0.5.RELEASE'
+}
+
+apply plugin: 'java'
+apply plugin: 'io.spring.dependency-management'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	compile 'org.springframework.security:spring-security-config'
+	compile 'org.springframework.security:spring-security-web'
+	compile 'org.springframework.boot:spring-boot-starter-web'
+
+	testCompile 'org.springframework.security:spring-security-test'
+	testCompile 'org.springframework.boot:spring-boot-starter-test'
+}
