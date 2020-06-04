@@ -29,7 +29,7 @@ public class HelloBasicApplicationTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testSessionFixationForBasicAuth() throws Exception {
+	public void testSessionFixationProtectionForBasicAuth() throws Exception {
 		final SessionHolder sessionHolder = new SessionHolder();
 
 		// login with "user" and store session
@@ -77,7 +77,7 @@ public class HelloBasicApplicationTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testSessionFixationForAnonymous() throws Exception {
+	public void testSessionFixationProtectionForAnonymous() throws Exception {
 		final SessionHolder sessionHolder = new SessionHolder();
 
 		// login with "user" and store session
