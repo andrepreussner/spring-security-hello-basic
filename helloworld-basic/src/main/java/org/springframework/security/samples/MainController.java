@@ -21,6 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MainController {
 
+	@RequestMapping("/")
+	public String anonymous() {
+		return "Allowed for all";
+	}
+
 	@RequestMapping("/user")
 	public String user() {
 		return "Allowed for users";

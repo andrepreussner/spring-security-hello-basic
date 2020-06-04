@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -30,12 +31,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 			.csrf().disable()
 			.authorizeRequests()
+				.antMatchers("/")
+				.permitAll()
+			.and()
+			.authorizeRequests()
 				.antMatchers("/user/**").hasRole("USER")
 				.antMatchers("/admin/**").hasRole("ADMIN")
 			.and()
 				.httpBasic()
 			.and()
-				.sessionManagement().sessionFixation().newSession();
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS).sessionFixation().newSession();
 	}
 	// @formatter:on
 

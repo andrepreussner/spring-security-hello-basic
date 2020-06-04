@@ -55,12 +55,64 @@ public class HelloBasicApplicationTest {
 
 		// session fixation attack: login with basic auth from "admin" and with session
 		// from "user"
-		this.mockMvc.perform(get("/user").with(httpBasic("admin", "admin")).with((request) -> {
+		this.mockMvc.perform(get("/admin").with(httpBasic("admin", "admin")).with((request) -> {
 			request.setSession(sessionHolder.session);
 			return request;
 		})).andExpect(status().isOk());
 
 		Assert.assertEquals(userSessionId, sessionHolder.session.getId());
+		// expect the "user" session to still not being allowed to access "admin" endpoint;
+		// actually it should either be HTTP 401 (session has been invalidated) or HTTP
+		// 403 (session is still a user session and not allowed to access admin endpoint),
+		// but checking for being not HTTP 200 is sufficient for our purpose
+		this.mockMvc.perform(get("/admin").with((request) -> {
+			request.setSession(sessionHolder.session);
+			return request;
+		})).andExpect(status().is(not(200)));
+	}
+
+	/**
+	 * Test that session fixation protection works for anonymous user.
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void testSessionFixationForAnonymous() throws Exception {
+		final SessionHolder sessionHolder = new SessionHolder();
+
+		// login with "user" and store session
+		this.mockMvc.perform(get("/")).andExpect(status().isOk())
+		.andDo((result) -> {
+			sessionHolder.session = (MockHttpSession) result.getRequest().getSession(false);
+		});
+		Assert.assertNotNull(sessionHolder.session);
+		String anonymousSessionId = sessionHolder.session.getId();
+
+		// to make sure that session is working correctly, check reading user endpoint is ok
+		this.mockMvc.perform(get("/user").with((request) -> {
+			request.setSession(sessionHolder.session);
+			return request;
+		})).andExpect(status().isUnauthorized());
+
+		// to make sure that session is working correctly, check reading admin endpoint is
+		// forbidden (logged in as "user")
+		this.mockMvc.perform(get("/admin").with((request) -> {
+			request.setSession(sessionHolder.session);
+			return request;
+		})).andExpect(status().isUnauthorized());
+
+		final SessionHolder adminSession = new SessionHolder();
+		// session fixation attack: login with basic auth from "admin" and with session
+		// from "user"
+		this.mockMvc.perform(get("/admin").with(httpBasic("admin", "admin")).with((request) -> {
+			request.setSession(sessionHolder.session);
+			return request;
+		})).andExpect(status().isOk())
+		.andDo((result) -> {
+			adminSession.session = (MockHttpSession) result.getRequest().getSession(false);
+		});;
+
+		Assert.assertEquals(anonymousSessionId, sessionHolder.session.getId());
 		// expect the "user" session to still not being allowed to access "admin" endpoint;
 		// actually it should either be HTTP 401 (session has been invalidated) or HTTP
 		// 403 (session is still a user session and not allowed to access admin endpoint),
